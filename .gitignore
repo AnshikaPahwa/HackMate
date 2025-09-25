@@ -1,0 +1,9 @@
+# Node / JavaScript
+node_modules/
+npm-debug.log
+package-lock.json
+
+# Env & OS
+.env
+.DS_Store
+Thumbs.db

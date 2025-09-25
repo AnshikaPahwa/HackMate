@@ -1,0 +1,26 @@
+const Docker = require('dockerode');
+const docker = new Docker();
+
+async function executeCode(code, language, testCase) {
+    const container = await docker.createContainer({
+        Image: `code-executor-${language}`,
+        Cmd: ['node', '-e', code],
+        NetworkDisabled: true,
+        Memory: 50 * 1024 * 1024, // 50MB memory limit
+        MemorySwap: -1,
+        CpuPeriod: 100000,
+        CpuQuota: 10000,
+    });
+
+    await container.start();
+    const output = await container.logs({
+        stdout: true,
+        stderr: true
+    });
+    await container.stop();
+    await container.remove();
+
+    return output.toString();
+}
+
+module.exports = { executeCode };
