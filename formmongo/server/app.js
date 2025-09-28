@@ -26,11 +26,11 @@ app.use(cors({
 
 // ====== SESSION AND DEBUG MIDDLEWARE ======
 app.use(session({
-    secret: 'your_secret_key',
-    resave: true,
+    secret: process.env.SESSION_SECRET,
+    resave: false,
     saveUninitialized: true,
     cookie: {
-        secure: false,
+        secure: true,
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000,
         sameSite: 'lax'
@@ -108,59 +108,7 @@ app.post('/api/run-tests', async (req, res) => {
                 res.status(500).json({ error: error.message || 'Failed to run tests' });
             }
         });
-//     try {
-//         const { code, language, challengeId } = req.body;
-        
-//         // Fetch the actual challenge from the database
-//         const challenge = await Challenge.findById(challengeId);
-//         if (!challenge) {
-//             return res.status(404).json({ error: 'Challenge not found' });
-//         }
 
-//         const results = await Promise.all(
-//             challenge.testCases.filter(test => !test.isHidden).map(async test => {
-//                 const startTime = Date.now();
-//                 try {
-//                     const result = await executeCode(code, language, test.input);
-//                     const executionTime = Date.now() - startTime;
-                    
-//                     // Clean up the output (remove any trailing newlines)
-//                     const cleanOutput = (result.output || '').trim();
-//                     const cleanExpected = test.expectedOutput.trim();
-                    
-//                     return {
-//                         passed: cleanOutput === cleanExpected,
-//                         input: test.input,
-//                         expected: cleanExpected,
-//                         output: cleanOutput,
-//                         executionTime,
-//                         error: result.error,
-//                         explanation: test.explanation
-//                     };
-//                 } catch (error) {
-//                     return {
-//                         passed: false,
-//                         input: test.input,
-//                         expected: test.expectedOutput,
-//                         output: '',
-//                         executionTime: Date.now() - startTime,
-//                         error: error.message,
-//                         explanation: test.explanation
-//                     };
-//                 }
-//             })
-//         );
-
-//         res.json(results);
-//     } catch (error) {
-//         console.error('Error running tests:', error);
-//         res.status(500).json({ error: 'Internal server error' });
-//     }
-// });
-
-// ====== ROUTES ======
-
-// DEV ONLY: Make current session admin
 app.get('/make-me-admin', (req, res) => {
     req.session.isAdmin = true;
     res.send('You are now admin for this session!');
@@ -235,7 +183,7 @@ app.get('/api/hackathons', async (req, res) => {
         // Fetch API hackathons from Flask server
         let apiHackathons = [];
         try {
-            const flaskRes = await axios.get('http://127.0.0.1:5000/api/hackathons');
+            // const flaskRes = await axios.get('http://127.0.0.1:5000/api/hackathons');
             apiHackathons = flaskRes.data;
         } catch (err) {
             console.error('Error fetching from Flask:', err.message);
@@ -338,7 +286,7 @@ app.get('/', (req, res) => {
 });
 
 // Connect to MongoDB - Use single database
-mongoose.connect('mongodb://localhost:27017/hackmateDB', {
+mongoose.connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 }).then(() => {
@@ -1584,92 +1532,6 @@ app.post('/api/leave-team', async (req, res) => {
 });
 
 
-
-// app.post('/api/submissions', async (req, res) => {
-//     try {
-//         if (!req.session.userId) {
-//             return res.status(401).json({ message: 'Please login first' });
-//         }
-
-//         const { code, language, challengeId } = req.body;
-        
-//         // Get the challenge
-//         const challenge = await Challenge.findById(challengeId);
-//         if (!challenge) {
-//             return res.status(404).json({ message: 'Challenge not found' });
-//         }
-
-//         // Create new submission
-//         const submission = new Submission({
-//             user: req.session.userId,
-//             challenge: challengeId,
-//             code,
-//             language,
-//             status: 'Accepted',
-//             score: challenge.points
-//         });
-
-//         await submission.save();
-
-//         // Update user's total points
-//         const updatedUser = await User.findByIdAndUpdate(
-//             req.session.userId,
-//             { $inc: { totalPoints: challenge.points } },
-//             { new: true }
-//         );
-
-//         res.json({ 
-//             success: true, 
-//             message: 'Solution submitted successfully',
-//             submission,
-//             totalPoints: updatedUser.totalPoints
-//         });
-//     } catch (error) {
-//         console.error('Error submitting solution:', error);
-//         res.status(500).json({ message: 'Error submitting solution' });
-//     }
-// });
-// app.get('/api/leaderboard', async (req, res) => {
-//     try {
-//         const leaderboard = await User.find()
-//             .select('username totalPoints')
-//             .sort('-totalPoints')
-//             .limit(10);
-
-//         res.json(leaderboard.map(user => ({
-//             username: user.username,
-//             points: user.totalPoints || 0
-//         })));
-//     } catch (error) {
-//         console.error('Error fetching leaderboard:', error);
-//         res.status(500).json({ message: 'Error fetching leaderboard' });
-//     }
-// });
-
-// app.get('/api/user/submissions', async (req, res) => {
-//     try {
-//         if (!req.session.userId) {
-//             return res.status(401).json({ message: 'Please login first' });
-//         }
-
-//         const submissions = await Submission.find({ user: req.session.userId })
-//             .populate('challenge', 'title')
-//             .sort('-submittedAt')
-//             .limit(10);
-
-//         res.json(submissions.map(sub => ({
-//             challengeTitle: sub.challenge?.title || 'Unknown Challenge',
-//             status: sub.status,
-//             language: sub.language,
-//             score: sub.score,
-//             submittedAt: sub.submittedAt
-//         })));
-//     } catch (error) {
-//         console.error('Error fetching submissions:', error);
-//         res.status(500).json({ message: 'Error fetching submissions' });
-//     }
-// });
-
 // Daily Challenge endpoint
 app.get('/api/daily-challenge', async (req, res) => {
     try {
@@ -1783,26 +1645,7 @@ app.post('/update-profile', async (req, res) => {
     }
 });
 
-// app.post('/api/run-tests', async (req, res) => {
-//   const { code, language, customInput } = req.body;
-
-//   try {
-//     const result = await executeCode(code, language, customInput || "");
-//     if (result.error) {
-//       return res.status(400).json({ error: result.error });
-//     }
-
-//     res.json({ output: result.output });
-//   } catch (err) {
-//     console.error('Error executing code:', err);
-//     res.status(500).json({ error: 'Server error during code execution' });
-//   }
-// });
-
-
-
-
-const port = 5000;
+const port = process.env.PORT || 5000;
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
