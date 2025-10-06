@@ -12,6 +12,7 @@ const challengeRoutes = require('./routes/challengeRoutes');
 const app = express();
 const { initializeDailyChallengeScheduler } = require('./utils/challengeAutomation');
 const { executeCode } = require('./utils/codeExecutor'); // ✅ use the good one
+require("dotenv").config();
 
 
 // ====== MOVE MIDDLEWARE TO THE TOP ======
