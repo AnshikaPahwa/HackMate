@@ -27,7 +27,7 @@ window.createTeam = async function(userId, userName) {
                         inviteBtn.textContent = 'Sending invitation...';
                     }
                     try {
-                        const response = await fetch('http://localhost:5000/api/connection-request', {
+                        const response = await fetch('/api/connection-request', {
                             method: 'POST',
                             credentials: 'include',
                             headers: {
@@ -115,7 +115,7 @@ if (action === 'accept') {
     notificationElement.style.backgroundColor = '#f5f5f5';
 }
 
-        const response = await fetch(`http://localhost:5000/api/team-invitation/${invitationId}`, {
+        const response = await fetch(`/api/team-invitation/${invitationId}`, {
             method: 'POST',
             credentials: 'include',
             headers: {
@@ -192,7 +192,7 @@ window.leaveTeam = function(teamId, teamName) {
         cancelText: 'Cancel',
         onConfirm: async () => {
             try {
-                const response = await fetch('http://localhost:5000/api/leave-team', {
+                const response = await fetch('/api/leave-team', {
                     method: 'POST',
                     credentials: 'include',
                     headers: {
@@ -224,7 +224,7 @@ async function refreshTeamsList() {
 
     teamsListContainer.innerHTML = '<div class="loading">Loading teams...</div>';
     try {
-        const response = await fetch('http://localhost:5000/api/my-teams', {
+        const response = await fetch('/api/my-teams', {
             method: 'GET',
             credentials: 'include',
             headers: {
@@ -290,7 +290,7 @@ async function addMemberToTeam(teamId, teamName) {
         onConfirm: async (userIdentifier) => {
             if (!userIdentifier) return;
             try {
-                const response = await fetch('http://localhost:5000/api/team-invite/add-member', {
+                const response = await fetch('/api/team-invite/add-member', {
                     method: 'POST',
                     credentials: 'include',
                     headers: {
@@ -369,7 +369,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         initializeNotifications();
         
         // Fetch user data
-        const response = await fetch('http://localhost:5000/dashboard', {
+        const response = await fetch('/dashboard', {
             method: 'GET',
             credentials: 'include',
             headers: {
@@ -633,7 +633,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             logoutBtn.addEventListener('click', async (e) => {
                 e.preventDefault();
                 try {
-                    const response = await fetch('http://localhost:5000/logout', {
+                    const response = await fetch('/logout', {
                         method: 'POST',
                         credentials: 'include',
                         headers: {
@@ -644,7 +644,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     
                     const result = await response.json();
                     if (result.success) {
-                        window.location.href = 'http://localhost:5000/login.html';
+                        window.location.href = '/login.html';
                     } else {
                         throw new Error(result.message);
                     }
@@ -660,7 +660,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         console.log('✨ Dashboard initialized successfully');
     } catch (error) {
-        window.location.href = 'http://localhost:5000/login.html';
+        window.location.href = '/login.html';
     }
 });
 
@@ -886,7 +886,7 @@ function initializeMatchFeature() {
             matchResults.style.display = 'none';
 
             // First verify if user is authenticated
-            const authCheck = await fetch('http://localhost:5000/dashboard', {
+            const authCheck = await fetch('/dashboard', {
                 method: 'GET',
                 credentials: 'include',
                 headers: {
@@ -900,7 +900,7 @@ function initializeMatchFeature() {
             }
 
             // Fetch potential matches
-            const response = await fetch('http://localhost:5000/api/find-matches', {
+            const response = await fetch('/api/find-matches', {
                 method: 'GET',
                 credentials: 'include',
                 headers: {
@@ -1043,7 +1043,7 @@ function createMatchCard(match) {
             connectBtn.addEventListener('click', async () => {
                 try {
                     // First verify authentication
-                    const authCheck = await fetch('http://localhost:5000/dashboard', {
+                    const authCheck = await fetch('/dashboard', {
                         method: 'GET',
                         credentials: 'include',
                         headers: {
@@ -1059,7 +1059,7 @@ function createMatchCard(match) {
                     connectBtn.disabled = true;
                     connectBtn.textContent = 'Sending Request...';
 
-                    const response = await fetch('http://localhost:5000/api/send-connection-request', {
+                    const response = await fetch('/api/send-connection-request', {
                         method: 'POST',
                         credentials: 'include',
                         headers: {
@@ -1216,7 +1216,7 @@ function openChatWindow(userId, userName, chatRoomId, teamName = null) {
                 }
 
                 try {
-                    const response = await fetch('http://localhost:5000/api/create-team', {
+                    const response = await fetch('/api/create-team', {
                         method: 'POST',
                         credentials: 'include',
                         headers: {
@@ -1254,7 +1254,7 @@ function openChatWindow(userId, userName, chatRoomId, teamName = null) {
             if (!content) return;
             
             try {
-                const response = await fetch('http://localhost:5000/api/send-message', {
+                const response = await fetch('/api/send-message', {
                     method: 'POST',
                     credentials: 'include',
                     headers: {
@@ -1295,7 +1295,7 @@ function openChatWindow(userId, userName, chatRoomId, teamName = null) {
         // Load existing messages
         const loadMessages = async () => {
             try {
-                const response = await fetch(`http://localhost:5000/api/chat-messages/${chatRoomId}`, {
+                const response = await fetch(`/api/chat-messages/${chatRoomId}`, {
                     credentials: 'include'
                 });
                 
@@ -1347,7 +1347,7 @@ function formatTime(date) {
 async function deleteNotification(notificationId) {
     if (!notificationId) return;
     try {
-        const response = await fetch(`http://localhost:5000/api/notifications/${notificationId}`, {
+        const response = await fetch(`/api/notifications/${notificationId}`, {
             method: 'DELETE',
             credentials: 'include',
             headers: {
@@ -1410,7 +1410,7 @@ function initializeNotifications() {
 
 async function checkNotifications() {
     try {
-        const response = await fetch('http://localhost:5000/api/notifications', {
+        const response = await fetch('/api/notifications', {
             method: 'GET',
             credentials: 'include',
             headers: {
@@ -1627,7 +1627,7 @@ async function loadConnectionRequests() {
     connectionRequests.innerHTML = '<div class="loading">Loading requests...</div>';
     
     try {
-        const response = await fetch('http://localhost:5000/api/notifications', {
+        const response = await fetch('/api/notifications', {
             method: 'GET',
             credentials: 'include',
             headers: {
@@ -1698,7 +1698,7 @@ async function loadConnectionRequests() {
 // Update handleRequest function
 async function markNotificationAsRead(notificationId) {
     try {
-        const response = await fetch(`http://localhost:5000/api/notifications/${notificationId}/read`, {
+        const response = await fetch(`/api/notifications/${notificationId}/read`, {
             method: 'POST',
             credentials: 'include',
             headers: {
@@ -1764,7 +1764,7 @@ window.handleRequest = async function(requestId, action) {
         // Log the request details
         console.log('Processing request:', { requestId, action });
         
-        const response = await fetch(`http://localhost:5000/api/accept-connection-request/${requestId}`, {
+        const response = await fetch(`/api/accept-connection-request/${requestId}`, {
             method: 'POST',
             credentials: 'include',
             headers: {
@@ -1860,7 +1860,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         try {
-            const response = await fetch('http://localhost:5000/update-profile', {
+            const response = await fetch('/update-profile', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

@@ -27,11 +27,11 @@ app.use(cors({
 
 // ====== SESSION AND DEBUG MIDDLEWARE ======
 app.use(session({
-    secret: process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET || 'fallback-secret-change-in-production',
     resave: false,
     saveUninitialized: true,
     cookie: {
-        secure: true,
+        secure: process.env.NODE_ENV === 'production',
         httpOnly: true,
         maxAge: 24 * 60 * 60 * 1000,
         sameSite: 'lax'
@@ -287,13 +287,20 @@ app.get('/', (req, res) => {
 });
 
 // Connect to MongoDB - Use single database
-mongoose.connect(process.env.MONGO_URI, {
+const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI;
+if (!mongoUri) {
+    console.error('ERROR: MONGODB_URI environment variable is not set!');
+    process.exit(1);
+}
+
+mongoose.connect(mongoUri, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 }).then(() => {
     console.log('Connected to MongoDB successfully');
 }).catch(err => {
     console.error('MongoDB connection error:', err);
+    process.exit(1);
 });
 
 initializeDailyChallengeScheduler();
@@ -543,16 +550,21 @@ app.post('/signup', async (req, res) => {
 });
 
 app.get('/check-email', async (req, res) => {
-    const { email } = req.query;
-    if (!email) {
-        return res.json({ success: false, message: "Email is required." });
-    }
-    const existingUser = await User.findOne({ email });
+    try {
+        const { email } = req.query;
+        if (!email) {
+            return res.json({ success: false, message: "Email is required." });
+        }
+        const existingUser = await User.findOne({ email });
 
-    if (existingUser) {
-        return res.json({ success: false, message: "Email already exists. Please login." });
-    } else {
-        return res.json({ success: true });
+        if (existingUser) {
+            return res.json({ success: false, message: "Email already exists. Please login." });
+        } else {
+            return res.json({ success: true });
+        }
+    } catch (error) {
+        console.error('Error checking email:', error);
+        return res.status(500).json({ success: false, message: "Error checking email. Please try again." });
     }
 });
 

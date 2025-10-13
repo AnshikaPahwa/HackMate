@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log("Submitting data:", jsonData); // Debugging log
 
         try {
-            const response = await fetch("http://localhost:5000/submit", {
+            const response = await fetch("/submit", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -80,7 +80,7 @@ async function checkEmailExists() {
 
     if (email.length > 3) {  // Avoid checking for empty input
         try{
-            const response = await fetch('http://localhost:5000/check-email?email=' + encodeURIComponent(email));
+            const response = await fetch('/check-email?email=' + encodeURIComponent(email));
         const data = await response.json();
         if (!data.success) {
             emailError.innerText = data.message;
