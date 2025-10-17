@@ -100,6 +100,9 @@ async function checkEmailExists() {
 document.addEventListener("DOMContentLoaded", function () {
     let tickerList = document.getElementById("hackathon-list");
     
+    // Only run ticker code if the element exists on this page
+    if (!tickerList) return;
+    
     // ✅ Start animation immediately with dummy data
     tickerList.innerHTML = `<li>🔄 Fetching hackathons...</li>
         <li>🎯 Stay tuned for upcoming events!</li>
